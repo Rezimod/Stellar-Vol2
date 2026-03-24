@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { registerStar } from '@/lib/stellar';
-import { saveStar } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,7 +13,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Message too short' }, { status: 400 });
     }
 
-    // Register on Stellar testnet + generate coordinates
     const result = await registerStar({
       name: starName.trim(),
       dedicated_to: dedicatedTo.trim(),
@@ -23,22 +21,25 @@ export async function POST(req: NextRequest) {
       occasion_date: occasionDate,
     });
 
-    // Persist to Supabase
-    await saveStar({
-      id: result.star_id,
-      name: starName.trim(),
-      dedicated_to: dedicatedTo.trim(),
-      message: message.trim(),
-      owner_name: ownerName.trim(),
-      ra: result.ra,
-      dec: result.dec,
-      constellation: result.constellation,
-      magnitude: result.magnitude,
-      tx_hash: result.tx_hash,
+    // Encode all star data into the URL — no database needed
+    const starData = {
+      id:                 result.star_id,
+      name:               starName.trim(),
+      dedicated_to:       dedicatedTo.trim(),
+      message:            message.trim(),
+      owner_name:         ownerName.trim(),
+      occasion_date:      occasionDate,
+      ra:                 result.ra,
+      dec:                result.dec,
+      constellation:      result.constellation,
+      magnitude:          result.magnitude,
+      tx_hash:            result.tx_hash,
       certificate_number: result.certificate_number,
-    });
+      created_at:         new Date().toISOString().split('T')[0],
+    };
 
-    return NextResponse.json({ id: result.star_id });
+    const encoded = Buffer.from(JSON.stringify(starData)).toString('base64url');
+    return NextResponse.json({ id: encoded });
 
   } catch (err) {
     console.error('[stars/create]', err);

@@ -5,13 +5,13 @@ export interface StarRecord {
   message: string;
   created_at: string;
   owner_name: string;
+  occasion_date: string;
   ra: string;           // Right Ascension
   dec: string;          // Declination
   constellation: string;
   magnitude: number;
   tx_hash: string;      // Stellar testnet tx
   certificate_number: string;
-  share_url: string;
 }
 
 export interface BlogPost {
