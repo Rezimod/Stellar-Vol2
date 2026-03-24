@@ -1,9 +1,18 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl  = process.env.NEXT_PUBLIC_SUPABASE_URL  ?? '';
-const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+// Lazy singleton — avoids "supabaseUrl is required" at build time
+let _client: SupabaseClient | null = null;
 
-export const supabase = createClient(supabaseUrl, supabaseAnon);
+function getClient(): SupabaseClient {
+  if (_client) return _client;
+  const url  = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anon) throw new Error('Supabase env vars not set (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY)');
+  _client = createClient(url, anon);
+  return _client;
+}
+
+export const supabase = { get client() { return getClient(); } };
 
 /* ─── Stars table helpers ─────────────────────────────── */
 
@@ -20,12 +29,12 @@ export async function saveStar(data: {
   tx_hash: string;
   certificate_number: string;
 }) {
-  const { error } = await supabase.from('stars').insert([data]);
+  const { error } = await supabase.client.from('stars').insert([data]);
   if (error) throw new Error(`Supabase insert failed: ${error.message}`);
 }
 
 export async function getStarById(id: string) {
-  const { data, error } = await supabase
+  const { data, error } = await supabase.client
     .from('stars')
     .select('*')
     .eq('id', id)
@@ -35,7 +44,7 @@ export async function getStarById(id: string) {
 }
 
 export async function getRecentStars(limit = 20) {
-  const { data, error } = await supabase
+  const { data, error } = await supabase.client
     .from('stars')
     .select('*')
     .order('created_at', { ascending: false })
