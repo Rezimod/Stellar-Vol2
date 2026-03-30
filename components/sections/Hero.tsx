@@ -1,8 +1,26 @@
 import Link from 'next/link';
-import { Star, ArrowRight } from 'lucide-react';
+import { ArrowRight, Cloud, Star } from 'lucide-react';
+import { getWeatherData, getSeeingLabel, getCloudLabel } from '@/lib/weather';
+import { getAllPlanets } from '@/lib/astronomy';
 
-export default function Hero() {
-  const words = ['Name.', 'Dedicate.', 'Immortalize.'];
+export default async function Hero() {
+  let cloudCover: number | null = null;
+  let seeing: string | null = null;
+  let visiblePlanets = 0;
+
+  try {
+    const [weather, planets] = await Promise.all([
+      getWeatherData(),
+      Promise.resolve(getAllPlanets(new Date())),
+    ]);
+    cloudCover = weather.current.cloudCover;
+    seeing = getSeeingLabel(weather.current);
+    visiblePlanets = planets.filter(p => p.isVisible).length;
+  } catch {
+    // show static fallback if fetch fails
+  }
+
+  const seeingColor = seeing === 'Excellent' ? '#34d399' : seeing === 'Good' ? '#38F0FF' : seeing === 'Fair' ? '#FFD166' : '#f87171';
 
   return (
     <section className="text-center flex flex-col items-center gap-6 pt-10 pb-4 px-4">
@@ -18,7 +36,7 @@ export default function Hero() {
         }}
       >
         <span className="w-1.5 h-1.5 rounded-full bg-[#34d399] animate-pulse inline-block" />
-        STELLAR BLOCKCHAIN — LIVE ON TESTNET
+        LIVE ASTRONOMICAL DATA — TBILISI, GEORGIA
       </div>
 
       {/* Headline */}
@@ -26,28 +44,23 @@ export default function Hero() {
         className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight"
         style={{ fontFamily: 'Georgia, serif' }}
       >
-        {words.map((word, i) => (
-          <span
-            key={word}
-            className="animate-word inline-block mr-3"
-            style={{ animationDelay: `${i * 160 + 200}ms` }}
-          >
-            <span style={{ color: i === 0 ? '#FFD166' : i === 1 ? '#38F0FF' : '#f1f5f9' }}>
-              {word}
-            </span>
-          </span>
-        ))}
+        <span className="animate-word inline-block mr-2" style={{ animationDelay: '200ms' }}>
+          <span style={{ color: '#FFD166' }}>Your Window</span>
+        </span>
+        <span className="animate-word inline-block" style={{ animationDelay: '360ms' }}>
+          <span style={{ color: '#f1f5f9' }}>to the</span>
+        </span>
         <br />
         <span
-          className="animate-word inline-block text-3xl sm:text-4xl mt-2"
+          className="animate-word inline-block mt-2"
           style={{
-            animationDelay: '700ms',
+            animationDelay: '520ms',
             background: 'linear-gradient(135deg, #7A5FFF, #38F0FF)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}
         >
-          A Star in the Sky.
+          Georgian Night Sky
         </span>
       </h1>
 
@@ -56,8 +69,7 @@ export default function Hero() {
         className="text-base sm:text-lg max-w-lg leading-relaxed animate-fade-up"
         style={{ color: 'var(--text-secondary)', animationDelay: '600ms', opacity: 0 }}
       >
-        Register a real star on the Stellar blockchain as an eternal, personal gift.
-        Every star is sealed with a unique transaction hash — verifiable forever.
+        Real-time sky conditions, planet tracking, and tonight's visible celestial objects — powered by live astronomical data.
       </p>
 
       {/* CTA group */}
@@ -66,39 +78,45 @@ export default function Hero() {
         style={{ animationDelay: '800ms', opacity: 0 }}
       >
         <Link
-          href="/create"
+          href="/sky-now"
           className="btn-stellar px-8 py-4 rounded-xl text-base font-bold flex items-center gap-2 animate-glow-pulse"
         >
-          <Star size={18} />
-          Name a Star
+          <Cloud size={18} />
+          Sky Conditions Now
           <ArrowRight size={16} />
         </Link>
         <Link
-          href="#pricing"
+          href="/tonight"
           className="btn-ghost px-6 py-4 rounded-xl text-sm font-medium"
         >
-          View Packages
+          Tonight's Sky
         </Link>
       </div>
 
-      {/* Trust row */}
+      {/* Live mini-widget strip */}
       <div
         className="flex items-center gap-4 text-[11px] flex-wrap justify-center animate-fade-up"
-        style={{ color: 'var(--text-dim)', animationDelay: '1000ms', opacity: 0 }}
+        style={{ animationDelay: '1000ms', opacity: 0 }}
       >
         <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#34d399]" />
-          Blockchain-verified
-        </span>
-        <span className="text-white/10">·</span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#FFD166]" />
-          Real star coordinates
-        </span>
-        <span className="text-white/10">·</span>
-        <span className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-[#38F0FF]" />
-          Eternal record
+          <span style={{ color: 'var(--text-dim)' }}>
+            Cloud Cover: <strong style={{ color: '#38F0FF' }}>{cloudCover !== null ? `${cloudCover}%` : '—'}</strong>
+          </span>
+        </span>
+        <span className="text-white/10">·</span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: seeingColor || '#FFD166' }} />
+          <span style={{ color: 'var(--text-dim)' }}>
+            Seeing: <strong style={{ color: seeingColor || '#FFD166' }}>{seeing ?? '—'}</strong>
+          </span>
+        </span>
+        <span className="text-white/10">·</span>
+        <span className="flex items-center gap-1.5">
+          <Star size={10} style={{ color: '#FFD166' }} />
+          <span style={{ color: 'var(--text-dim)' }}>
+            Visible Planets: <strong style={{ color: '#FFD166' }}>{visiblePlanets} tonight</strong>
+          </span>
         </span>
       </div>
     </section>

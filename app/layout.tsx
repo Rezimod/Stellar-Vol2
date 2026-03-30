@@ -11,12 +11,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Astroman Stellar — Name a Star on the Blockchain',
-  description: 'Register a real star in a real constellation on the Stellar blockchain. A unique, eternal gift for any occasion.',
-  keywords: ['name a star', 'star registry', 'blockchain gift', 'stellar', 'astroman', 'cosmos'],
+  title: 'SkyWatcher by Astroman — Georgian Night Sky',
+  description: 'Real-time sky conditions, planet tracking, and tonight\'s visible celestial objects for stargazers in Georgia.',
+  keywords: ['skywatcher', 'astronomy', 'tbilisi', 'sky conditions', 'planet tracker', 'astroman', 'georgia stargazing'],
   openGraph: {
-    title: 'Astroman Stellar — Name a Star',
-    description: 'Your star. Your name. Sealed forever on the Stellar blockchain.',
+    title: 'SkyWatcher by Astroman',
+    description: 'Real-time sky conditions, planet tracking, and tonight\'s celestial objects — Tbilisi, Georgia.',
     type: 'website',
   },
 };

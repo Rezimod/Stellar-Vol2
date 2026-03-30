@@ -18,15 +18,16 @@ export default function Footer() {
           <div className="flex items-center gap-3">
             <AstroLogo heightClass="h-5" />
             <div className="ornament-line w-16 hidden sm:block" />
-            <span className="text-[10px] text-[var(--text-dim)] tracking-widest font-mono">STELLAR V2</span>
+            <span className="text-[10px] text-[var(--text-dim)] tracking-widest font-mono">SKYWATCHER V1</span>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs text-[var(--text-dim)]">
-            <Link href="/"       className="hover:text-[#FFD166] transition-colors">Home</Link>
-            <Link href="/create" className="hover:text-[#FFD166] transition-colors">Name a Star</Link>
-            <Link href="/blog"   className="hover:text-[#FFD166] transition-colors">Blog</Link>
+            <Link href="/"        className="hover:text-[#FFD166] transition-colors">Home</Link>
+            <Link href="/sky-now" className="hover:text-[#FFD166] transition-colors">Sky Now</Link>
+            <Link href="/tonight" className="hover:text-[#FFD166] transition-colors">Tonight</Link>
+            <Link href="/planets" className="hover:text-[#FFD166] transition-colors">Planets</Link>
+            <Link href="/blog"    className="hover:text-[#FFD166] transition-colors">Blog</Link>
             <a href="https://astroman.ge" target="_blank" rel="noopener noreferrer" className="hover:text-[#FFD166] transition-colors">Store</a>
-            <a href="https://stellar.org"  target="_blank" rel="noopener noreferrer" className="hover:text-[#38F0FF] transition-colors">Stellar</a>
           </div>
 
         </div>

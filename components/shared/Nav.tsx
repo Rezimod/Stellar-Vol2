@@ -1,13 +1,15 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Star, BookOpen, PlusCircle, Home } from 'lucide-react';
+import { Home, Cloud, Globe, Moon, BookOpen, Map } from 'lucide-react';
 import AstroLogo from './AstroLogo';
 
 const tabs = [
-  { href: '/',       label: 'Home',   icon: <Home     size={16} /> },
-  { href: '/create', label: 'Name a Star', icon: <PlusCircle size={16} /> },
-  { href: '/blog',   label: 'Blog',   icon: <BookOpen size={16} /> },
+  { href: '/',        label: 'Home',          icon: <Home     size={16} /> },
+  { href: '/sky-now', label: 'Sky Now',        icon: <Cloud    size={16} /> },
+  { href: '/planets', label: 'Planets',        icon: <Globe    size={16} /> },
+  { href: '/tonight', label: "Tonight's Sky",  icon: <Moon     size={16} /> },
+  { href: '/blog',    label: 'Blog',           icon: <BookOpen size={16} /> },
 ];
 
 export default function Nav() {
@@ -24,7 +26,7 @@ export default function Nav() {
               className="hidden sm:inline text-xs tracking-widest font-mono"
               style={{ color: '#FFD166' }}
             >
-              STELLAR
+              SKYWATCHER
             </span>
           </Link>
 
@@ -48,11 +50,11 @@ export default function Nav() {
 
           {/* CTA */}
           <Link
-            href="/create"
+            href="/sky-now"
             className="btn-stellar px-4 py-2 text-sm rounded-xl hidden sm:flex items-center gap-1.5"
           >
-            <Star size={14} />
-            Name a Star
+            <Map size={14} />
+            Open Sky Map
           </Link>
 
           {/* Mobile icon nav */}
