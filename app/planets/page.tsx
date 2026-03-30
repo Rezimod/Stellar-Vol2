@@ -1,6 +1,7 @@
 import { PLANETS, type PlanetData } from '@/lib/planets-data';
 import { getAllPlanets } from '@/lib/astronomy';
 import type { Metadata } from 'next';
+import BackButton from '@/components/BackButton';
 
 export const metadata: Metadata = {
   title: 'The Solar System | SkyWatcher by Astroman',
@@ -101,6 +102,8 @@ export default function PlanetsPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 animate-page-enter flex flex-col gap-8">
+
+      <BackButton />
 
       {/* Header */}
       <div>

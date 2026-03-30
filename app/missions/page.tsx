@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/context';
 import { useLanguage } from '@/lib/i18n/context';
 import { createClient } from '@/lib/supabase/client';
@@ -45,7 +46,8 @@ const TARGET_EMOJI: Record<string, string> = {
 };
 
 export default function MissionsPage() {
-  const { user, profile } = useAuth();
+  const router = useRouter();
+  const { user, profile, loading: authLoading } = useAuth();
   const { t, locale } = useLanguage();
   const [missions, setMissions] = useState<Mission[]>([]);
   const [userStatuses, setUserStatuses] = useState<UserMissionStatus[]>([]);
@@ -54,6 +56,21 @@ export default function MissionsPage() {
   const [startingId, setStartingId] = useState<string | null>(null);
   const [uploadMission, setUploadMission] = useState<{ mission: Mission; userMissionId: string } | null>(null);
   const [cloudCover, setCloudCover] = useState<number>(50);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
+
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full border-2 animate-spin"
+          style={{ borderColor: '#38F0FF', borderTopColor: 'transparent' }} />
+      </div>
+    );
+  }
 
   useEffect(() => {
     const supabase = createClient();

@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Cloud, Globe, Moon, BookOpen, Star } from 'lucide-react';
+import { Home, Telescope, Globe, BookOpen, Star } from 'lucide-react';
 import AstroLogo from './AstroLogo';
 import LanguageToggle from '@/components/LanguageToggle';
 import AuthButtons from '@/components/AuthButtons';
@@ -9,19 +9,23 @@ import UserDropdown from '@/components/UserDropdown';
 import { useAuth } from '@/lib/auth/context';
 import { useLanguage } from '@/lib/i18n/context';
 
-const tabs = [
-  { href: '/',        labelKey: 'nav.home',     icon: <Home     size={16} /> },
-  { href: '/sky-now', labelKey: 'nav.skyNow',   icon: <Cloud    size={16} /> },
-  { href: '/planets', labelKey: 'nav.planets',  icon: <Globe    size={16} /> },
-  { href: '/tonight', labelKey: 'nav.tonight',  icon: <Moon     size={16} /> },
-  { href: '/missions',labelKey: 'nav.missions', icon: <Star     size={16} /> },
-  { href: '/blog',    labelKey: 'nav.blog',     icon: <BookOpen size={16} /> },
+const baseTabs = [
+  { href: '/',        labelKey: 'nav.home',    icon: <Home      size={16} /> },
+  { href: '/tonight', labelKey: 'nav.tonight', icon: <Telescope size={16} /> },
+  { href: '/planets', labelKey: 'nav.planets', icon: <Globe     size={16} /> },
+  { href: '/blog',    labelKey: 'nav.blog',    icon: <BookOpen  size={16} /> },
 ];
+
+const missionsTab = { href: '/missions', labelKey: 'nav.missions', icon: <Star size={16} /> };
 
 export default function Nav() {
   const pathname = usePathname();
   const { user } = useAuth();
   const { t } = useLanguage();
+
+  const tabs = user
+    ? [...baseTabs.slice(0, 3), missionsTab, baseTabs[3]]
+    : baseTabs;
 
   return (
     <nav className="glass-nav sticky top-0 z-40">

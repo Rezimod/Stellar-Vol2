@@ -36,7 +36,7 @@ export default async function Hero() {
         }}
       >
         <span className="w-1.5 h-1.5 rounded-full bg-[#34d399] animate-pulse inline-block" />
-        LIVE ASTRONOMICAL DATA — TBILISI, GEORGIA
+        ᲪᲝᲪᲮᲐᲚᲘ ასტრონომიული მონაცემები — თბილისი, საქართველო
       </div>
 
       {/* Headline */}
@@ -45,10 +45,7 @@ export default async function Hero() {
         style={{ fontFamily: 'Georgia, serif' }}
       >
         <span className="animate-word inline-block mr-2" style={{ animationDelay: '200ms' }}>
-          <span style={{ color: '#FFD166' }}>Your Window</span>
-        </span>
-        <span className="animate-word inline-block" style={{ animationDelay: '360ms' }}>
-          <span style={{ color: '#f1f5f9' }}>to the</span>
+          <span style={{ color: '#FFD166' }}>შენი ფანჯარა</span>
         </span>
         <br />
         <span
@@ -60,7 +57,7 @@ export default async function Hero() {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          Georgian Night Sky
+          ქართულ ღამის ცაში
         </span>
       </h1>
 
@@ -69,7 +66,7 @@ export default async function Hero() {
         className="text-base sm:text-lg max-w-lg leading-relaxed animate-fade-up"
         style={{ color: 'var(--text-secondary)', animationDelay: '600ms', opacity: 0 }}
       >
-        Real-time sky conditions, planet tracking, and tonight's visible celestial objects — powered by live astronomical data.
+        ცოცხალი ასტრონომიული მონაცემები — ამინდი, პლანეტები და ღამით ხილული ობიექტები.
       </p>
 
       {/* CTA group */}
@@ -78,18 +75,12 @@ export default async function Hero() {
         style={{ animationDelay: '800ms', opacity: 0 }}
       >
         <Link
-          href="/sky-now"
+          href="/tonight"
           className="btn-stellar px-8 py-4 rounded-xl text-base font-bold flex items-center gap-2 animate-glow-pulse"
         >
           <Cloud size={18} />
-          Sky Conditions Now
+          ღამის ცა ახლა
           <ArrowRight size={16} />
-        </Link>
-        <Link
-          href="/tonight"
-          className="btn-ghost px-6 py-4 rounded-xl text-sm font-medium"
-        >
-          Tonight's Sky
         </Link>
       </div>
 
@@ -101,21 +92,21 @@ export default async function Hero() {
         <span className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-[#38F0FF]" />
           <span style={{ color: 'var(--text-dim)' }}>
-            Cloud Cover: <strong style={{ color: '#38F0FF' }}>{cloudCover !== null ? `${cloudCover}%` : '—'}</strong>
+            ღრუბლიანობა: <strong style={{ color: '#38F0FF' }}>{cloudCover !== null ? `${cloudCover}%` : '—'}</strong>
           </span>
         </span>
         <span className="text-white/10">·</span>
         <span className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full" style={{ background: seeingColor || '#FFD166' }} />
           <span style={{ color: 'var(--text-dim)' }}>
-            Seeing: <strong style={{ color: seeingColor || '#FFD166' }}>{seeing ?? '—'}</strong>
+            ხედვა: <strong style={{ color: seeingColor || '#FFD166' }}>{seeing ?? '—'}</strong>
           </span>
         </span>
         <span className="text-white/10">·</span>
         <span className="flex items-center gap-1.5">
           <Star size={10} style={{ color: '#FFD166' }} />
           <span style={{ color: 'var(--text-dim)' }}>
-            Visible Planets: <strong style={{ color: '#FFD166' }}>{visiblePlanets} tonight</strong>
+            ხილული პლანეტები: <strong style={{ color: '#FFD166' }}>{visiblePlanets} ღამე</strong>
           </span>
         </span>
       </div>
