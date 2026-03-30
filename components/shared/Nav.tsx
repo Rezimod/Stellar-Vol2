@@ -1,19 +1,27 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Cloud, Globe, Moon, BookOpen, Map } from 'lucide-react';
+import { Home, Cloud, Globe, Moon, BookOpen, Star } from 'lucide-react';
 import AstroLogo from './AstroLogo';
+import LanguageToggle from '@/components/LanguageToggle';
+import AuthButtons from '@/components/AuthButtons';
+import UserDropdown from '@/components/UserDropdown';
+import { useAuth } from '@/lib/auth/context';
+import { useLanguage } from '@/lib/i18n/context';
 
 const tabs = [
-  { href: '/',        label: 'Home',          icon: <Home     size={16} /> },
-  { href: '/sky-now', label: 'Sky Now',        icon: <Cloud    size={16} /> },
-  { href: '/planets', label: 'Planets',        icon: <Globe    size={16} /> },
-  { href: '/tonight', label: "Tonight's Sky",  icon: <Moon     size={16} /> },
-  { href: '/blog',    label: 'Blog',           icon: <BookOpen size={16} /> },
+  { href: '/',        labelKey: 'nav.home',     icon: <Home     size={16} /> },
+  { href: '/sky-now', labelKey: 'nav.skyNow',   icon: <Cloud    size={16} /> },
+  { href: '/planets', labelKey: 'nav.planets',  icon: <Globe    size={16} /> },
+  { href: '/tonight', labelKey: 'nav.tonight',  icon: <Moon     size={16} /> },
+  { href: '/missions',labelKey: 'nav.missions', icon: <Star     size={16} /> },
+  { href: '/blog',    labelKey: 'nav.blog',     icon: <BookOpen size={16} /> },
 ];
 
 export default function Nav() {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <nav className="glass-nav sticky top-0 z-40">
@@ -31,49 +39,53 @@ export default function Nav() {
           </Link>
 
           {/* Desktop tabs */}
-          <div className="hidden sm:flex items-center gap-0.5">
+          <div className="hidden md:flex items-center gap-0.5">
             {tabs.map(tab => (
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`px-3.5 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-all duration-200 ${
+                className={`px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all duration-200 ${
                   pathname === tab.href
                     ? 'text-[#FFD166] bg-[rgba(255,209,102,0.08)] border-b-2 border-[#FFD166]'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5'
                 }`}
               >
                 {tab.icon}
-                <span>{tab.label}</span>
+                <span>{t(tab.labelKey)}</span>
               </Link>
             ))}
           </div>
 
-          {/* CTA */}
-          <Link
-            href="/sky-now"
-            className="btn-stellar px-4 py-2 text-sm rounded-xl hidden sm:flex items-center gap-1.5"
-          >
-            <Map size={14} />
-            Open Sky Map
-          </Link>
+          {/* Right side: language toggle + auth */}
+          <div className="hidden md:flex items-center gap-3">
+            <LanguageToggle />
+            {user ? <UserDropdown /> : <AuthButtons />}
+          </div>
 
           {/* Mobile icon nav */}
-          <div className="flex sm:hidden items-center gap-0.5">
+          <div className="flex md:hidden items-center gap-1">
+            <LanguageToggle />
             {tabs.map(tab => (
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`p-2.5 rounded-lg transition-all duration-200 ${
+                className={`p-2 rounded-lg transition-all duration-200 ${
                   pathname === tab.href
                     ? 'text-[#FFD166] bg-[rgba(255,209,102,0.08)]'
                     : 'text-[var(--text-dim)] hover:text-[var(--text-primary)]'
                 }`}
-                title={tab.label}
+                title={t(tab.labelKey)}
               >
                 {tab.icon}
               </Link>
             ))}
+            {user ? <UserDropdown /> : (
+              <Link href="/login" className="p-2 rounded-lg text-[var(--text-dim)] hover:text-[var(--text-primary)]">
+                <Star size={16} />
+              </Link>
+            )}
           </div>
+
         </div>
       </div>
     </nav>

@@ -3,6 +3,8 @@ import './globals.css';
 import StarField from '@/components/shared/StarField';
 import Nav from '@/components/shared/Nav';
 import Footer from '@/components/shared/Footer';
+import { LanguageProvider } from '@/lib/i18n/context';
+import { AuthProvider } from '@/lib/auth/context';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -28,12 +30,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className="min-h-screen flex flex-col"
         style={{ background: 'var(--bg-void)', color: 'var(--text-primary)' }}
       >
-        <StarField />
-        <Nav />
-        <main className="relative z-10 flex-1 pb-10">
-          {children}
-        </main>
-        <Footer />
+        <LanguageProvider>
+          <AuthProvider>
+            <StarField />
+            <Nav />
+            <main className="relative z-10 flex-1 pb-10">
+              {children}
+            </main>
+            <Footer />
+          </AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
