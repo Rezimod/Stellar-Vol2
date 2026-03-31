@@ -31,13 +31,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function fetchProfile(userId: string) {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    setProfile(data as UserProfile | null);
+    try {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      setProfile(data as UserProfile | null);
+    } catch {
+      setProfile(null);
+    }
   }
 
   async function refreshProfile() {
