@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, CheckCircle } from 'lucide-react';
+import { X, CheckCircle, Camera, ImageIcon, Send, Clock } from 'lucide-react';
 import { useAuth } from '@/lib/auth/context';
 import { useLanguage } from '@/lib/i18n/context';
 import { getAllPlanets, getMoonInfo } from '@/lib/astronomy';
@@ -141,7 +141,12 @@ export default function MissionsPage() {
   const [moon, setMoon] = useState<MoonInfo | null>(null);
   const [activeMission, setActiveMission] = useState<MissionDef | null>(null);
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
   const [justCompleted, setJustCompleted] = useState<string | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
 
   // Location
   const [location, setLocation] = useState({ lat: 41.7151, lon: 44.8271, name: 'თბილისი' });
@@ -240,14 +245,28 @@ export default function MissionsPage() {
       return;
     }
     setActiveMission(mission);
+    setPhotoPreview(null);
+    setSubmitting(false);
   }
 
-  function handleComplete() {
-    if (!activeMission) return;
-    setCompletedIds(prev => new Set([...prev, activeMission.id]));
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setPhotoPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  async function handleSubmitObservation() {
+    if (!activeMission || !photoPreview) return;
+    setSubmitting(true);
+    await new Promise(r => setTimeout(r, 1200)); // simulate upload
+    setPendingIds(prev => new Set([...prev, activeMission.id]));
     setJustCompleted(activeMission.id);
     setActiveMission(null);
-    setTimeout(() => setJustCompleted(null), 4000);
+    setPhotoPreview(null);
+    setSubmitting(false);
+    setTimeout(() => setJustCompleted(null), 5000);
   }
 
   return (
@@ -336,14 +355,14 @@ export default function MissionsPage() {
         </span>
       </div>
 
-      {/* Completion toast */}
+      {/* Submission toast */}
       {justCompleted && (
         <div
           className="mb-6 px-4 py-3 rounded-xl text-center text-xs font-medium flex items-center justify-center gap-2"
-          style={{ background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.30)', color: '#34d399' }}
+          style={{ background: 'rgba(255,209,102,0.12)', border: '1px solid rgba(255,209,102,0.30)', color: '#FFD166' }}
         >
-          <CheckCircle size={14} />
-          მისია დასრულებულია! XP და ქულები დამატებულია.
+          <Clock size={14} />
+          ფოტო გაიგზავნა! ადმინისტრატორი განიხილავს და ქულებს დაამატებს.
         </div>
       )}
 
@@ -444,14 +463,67 @@ export default function MissionsPage() {
               </ul>
             </div>
 
-            {/* Complete button */}
-            <button
-              onClick={handleComplete}
-              className="py-3 rounded-xl text-sm font-bold transition-all"
-              style={{ background: 'linear-gradient(135deg, rgba(56,240,255,0.18), rgba(168,139,250,0.18))', border: '1px solid rgba(56,240,255,0.30)', color: '#38F0FF' }}
-            >
-              ✓ მისია დავასრულე
-            </button>
+            {/* Photo upload */}
+            <div className="flex flex-col gap-3">
+              <p className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-dim)' }}>— ატვირთე შენი დაკვირვება —</p>
+
+              {/* Hidden file inputs */}
+              <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoChange} />
+              <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+
+              {/* Photo preview */}
+              {photoPreview ? (
+                <div className="relative">
+                  <img src={photoPreview} alt="preview" className="w-full rounded-xl object-cover" style={{ maxHeight: '200px', border: '1px solid rgba(56,240,255,0.20)' }} />
+                  <button
+                    onClick={() => setPhotoPreview(null)}
+                    className="absolute top-2 right-2 p-1 rounded-full"
+                    style={{ background: 'rgba(0,0,0,0.6)' }}
+                  >
+                    <X size={14} style={{ color: 'white' }} />
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => cameraRef.current?.click()}
+                    className="flex flex-col items-center gap-2 py-4 rounded-xl text-xs font-medium transition-all"
+                    style={{ background: 'rgba(56,240,255,0.06)', border: '1px solid rgba(56,240,255,0.15)', color: '#38F0FF' }}
+                  >
+                    <Camera size={22} />
+                    კამერა
+                  </button>
+                  <button
+                    onClick={() => galleryRef.current?.click()}
+                    className="flex flex-col items-center gap-2 py-4 rounded-xl text-xs font-medium transition-all"
+                    style={{ background: 'rgba(168,139,250,0.06)', border: '1px solid rgba(168,139,250,0.15)', color: '#a78bfa' }}
+                  >
+                    <ImageIcon size={22} />
+                    გალერეა
+                  </button>
+                </div>
+              )}
+
+              {/* Submit */}
+              <button
+                onClick={handleSubmitObservation}
+                disabled={!photoPreview || submitting}
+                className="py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+                style={photoPreview && !submitting
+                  ? { background: 'linear-gradient(135deg, rgba(56,240,255,0.18), rgba(168,139,250,0.18))', border: '1px solid rgba(56,240,255,0.30)', color: '#38F0FF' }
+                  : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-dim)', cursor: 'not-allowed' }
+                }
+              >
+                {submitting ? (
+                  <><Clock size={14} className="animate-spin" /> იტვირთება...</>
+                ) : (
+                  <><Send size={14} /> გაგზავნა განხილვისთვის</>
+                )}
+              </button>
+              <p className="text-[10px] text-center" style={{ color: 'var(--text-dim)' }}>
+                ადმინი განიხილავს ფოტოს და დაამატებს ქულებს
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -517,6 +589,11 @@ export default function MissionsPage() {
                 <div className="py-2.5 rounded-xl text-xs font-bold text-center flex items-center justify-center gap-1.5"
                   style={{ background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.25)', color: '#34d399' }}>
                   <CheckCircle size={13} /> დასრულებულია
+                </div>
+              ) : pendingIds.has(mission.id) ? (
+                <div className="py-2.5 rounded-xl text-xs font-bold text-center flex items-center justify-center gap-1.5"
+                  style={{ background: 'rgba(255,209,102,0.10)', border: '1px solid rgba(255,209,102,0.25)', color: '#FFD166' }}>
+                  <Clock size={13} /> განხილვის მოლოდინში
                 </div>
               ) : (
                 <button

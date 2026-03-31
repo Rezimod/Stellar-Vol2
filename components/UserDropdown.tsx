@@ -9,7 +9,7 @@ import { useLanguage } from '@/lib/i18n/context';
 import UserAvatar from './UserAvatar';
 
 export default function UserDropdown() {
-  const { profile, signOut } = useAuth();
+  const { profile, user, signOut } = useAuth();
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -29,7 +29,13 @@ export default function UserDropdown() {
     router.push('/');
   }
 
-  if (!profile) return null;
+  const displayName: string =
+    profile?.full_name ||
+    (user?.user_metadata?.full_name as string | undefined) ||
+    user?.email?.split('@')[0] ||
+    'Observer';
+
+  if (!user) return null;
 
   const menuItems = [
     { href: '/profile', label: t('nav.profile'), icon: <User size={15} /> },
@@ -40,9 +46,9 @@ export default function UserDropdown() {
   return (
     <div ref={ref} className="relative">
       <button onClick={() => setOpen(v => !v)} className="flex items-center gap-2">
-        <UserAvatar name={profile.full_name} size="sm" />
+        <UserAvatar name={displayName} size="sm" />
         <span className="text-xs hidden sm:block" style={{ color: 'var(--text-secondary)' }}>
-          {profile.full_name.split(' ')[0]}
+          {displayName.split(' ')[0]}
         </span>
       </button>
 
@@ -57,9 +63,9 @@ export default function UserDropdown() {
           }}
         >
           <div className="px-3 py-2 border-b mb-1" style={{ borderColor: 'rgba(56,240,255,0.10)' }}>
-            <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{profile.full_name}</p>
+            <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{displayName}</p>
             <p className="text-[10px]" style={{ color: 'var(--text-dim)' }}>
-              {t('missions.level')} {profile.level} · {profile.xp} {t('missions.xp')}
+              {t('missions.level')} {profile?.level ?? 1} · {profile?.xp ?? 0} {t('missions.xp')}
             </p>
           </div>
 
