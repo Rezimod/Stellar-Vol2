@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { X, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth/context';
 import { useLanguage } from '@/lib/i18n/context';
 import { getAllPlanets, getMoonInfo } from '@/lib/astronomy';
@@ -131,12 +133,15 @@ function getMissionAvailability(
 export default function MissionsPage() {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const router = useRouter();
 
   const [filter, setFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
   const [cloudCover, setCloudCover] = useState<number | null>(null);
   const [planets, setPlanets] = useState<PlanetInfo[]>([]);
   const [moon, setMoon] = useState<MoonInfo | null>(null);
-  const [authMsg, setAuthMsg] = useState<string | null>(null);
+  const [activeMission, setActiveMission] = useState<MissionDef | null>(null);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [justCompleted, setJustCompleted] = useState<string | null>(null);
 
   // Location
   const [location, setLocation] = useState({ lat: 41.7151, lon: 44.8271, name: 'თბილისი' });
@@ -229,11 +234,20 @@ export default function MissionsPage() {
     hard: 'რთული',
   };
 
-  function handleStartMission() {
+  function handleStartMission(mission: MissionDef) {
     if (!user) {
-      setAuthMsg('გთხოვთ, გაიაროთ ავტორიზაცია მისიის დასაწყებად');
-      setTimeout(() => setAuthMsg(null), 3500);
+      router.push('/login');
+      return;
     }
+    setActiveMission(mission);
+  }
+
+  function handleComplete() {
+    if (!activeMission) return;
+    setCompletedIds(prev => new Set([...prev, activeMission.id]));
+    setJustCompleted(activeMission.id);
+    setActiveMission(null);
+    setTimeout(() => setJustCompleted(null), 4000);
   }
 
   return (
@@ -322,13 +336,14 @@ export default function MissionsPage() {
         </span>
       </div>
 
-      {/* Auth message toast */}
-      {authMsg && (
+      {/* Completion toast */}
+      {justCompleted && (
         <div
-          className="mb-6 px-4 py-3 rounded-xl text-center text-xs font-medium"
-          style={{ background: 'rgba(248,113,113,0.10)', border: '1px solid rgba(248,113,113,0.25)', color: '#f87171' }}
+          className="mb-6 px-4 py-3 rounded-xl text-center text-xs font-medium flex items-center justify-center gap-2"
+          style={{ background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.30)', color: '#34d399' }}
         >
-          {authMsg}
+          <CheckCircle size={14} />
+          მისია დასრულებულია! XP და ქულები დამატებულია.
         </div>
       )}
 
@@ -349,6 +364,97 @@ export default function MissionsPage() {
           </button>
         ))}
       </div>
+
+      {/* Mission detail modal */}
+      {activeMission && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
+          onClick={() => setActiveMission(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl p-6 flex flex-col gap-4"
+            style={{ background: 'rgba(10,18,40,0.98)', border: '1px solid rgba(56,240,255,0.20)', maxHeight: '85vh', overflowY: 'auto' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">{activeMission.emoji}</span>
+                <div>
+                  <p className="font-bold text-base leading-snug" style={{ fontFamily: 'Georgia, serif' }}>{activeMission.title_ka}</p>
+                  <span
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                    style={{ background: `${DIFFICULTY_COLOR[activeMission.difficulty]}18`, color: DIFFICULTY_COLOR[activeMission.difficulty] }}
+                  >
+                    {DIFFICULTY_LABEL[activeMission.difficulty]}
+                  </span>
+                </div>
+              </div>
+              <button onClick={() => setActiveMission(null)} style={{ color: 'var(--text-dim)', flexShrink: 0 }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              {activeMission.description_ka}
+            </p>
+
+            {/* Rewards */}
+            <div
+              className="flex items-center gap-4 px-4 py-3 rounded-xl"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+            >
+              <div className="text-center flex-1">
+                <p className="text-base font-bold" style={{ color: '#38F0FF', fontFamily: 'Georgia, serif' }}>{activeMission.points_reward}</p>
+                <p className="text-[9px] uppercase tracking-wider mt-0.5" style={{ color: 'var(--text-dim)' }}>ქულა</p>
+              </div>
+              <div className="w-px h-8" style={{ background: 'rgba(255,255,255,0.08)' }} />
+              <div className="text-center flex-1">
+                <p className="text-base font-bold" style={{ color: '#a78bfa', fontFamily: 'Georgia, serif' }}>{activeMission.xp_reward}</p>
+                <p className="text-[9px] uppercase tracking-wider mt-0.5" style={{ color: 'var(--text-dim)' }}>XP</p>
+              </div>
+            </div>
+
+            {/* Tips */}
+            <div>
+              <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: 'var(--text-dim)' }}>— რჩევები —</p>
+              <ul className="flex flex-col gap-1.5">
+                {activeMission.difficulty === 'easy' && (
+                  <>
+                    <li className="text-xs" style={{ color: 'var(--text-secondary)' }}>✦ ბინოკლი ან პატარა ტელესკოპი საკმარისია</li>
+                    <li className="text-xs" style={{ color: 'var(--text-secondary)' }}>✦ ქალაქის გარეთ, სადაც ნაკლები განათებაა</li>
+                    <li className="text-xs" style={{ color: 'var(--text-secondary)' }}>✦ ცის შემდეგი გვერდი დაგეხმარება: Tonight</li>
+                  </>
+                )}
+                {activeMission.difficulty === 'medium' && (
+                  <>
+                    <li className="text-xs" style={{ color: 'var(--text-secondary)' }}>✦ 70mm+ ტელესკოპი ან კარგი ბინოკლი</li>
+                    <li className="text-xs" style={{ color: 'var(--text-secondary)' }}>✦ 30%-ზე ნაკლები ღრუბლიანობა საჭიროა</li>
+                    <li className="text-xs" style={{ color: 'var(--text-secondary)' }}>✦ ჯობია ახალმთვარის ფაზასთან ახლოს</li>
+                  </>
+                )}
+                {activeMission.difficulty === 'hard' && (
+                  <>
+                    <li className="text-xs" style={{ color: 'var(--text-secondary)' }}>✦ 4"+ ტელესკოპი აუცილებელია</li>
+                    <li className="text-xs" style={{ color: 'var(--text-secondary)' }}>✦ ბნელი ცა — ქალაქიდან 30+ კმ დაშორება</li>
+                    <li className="text-xs" style={{ color: 'var(--text-secondary)' }}>✦ Seeing 3/5 ან უფრო მეტი საჭიროა</li>
+                  </>
+                )}
+              </ul>
+            </div>
+
+            {/* Complete button */}
+            <button
+              onClick={handleComplete}
+              className="py-3 rounded-xl text-sm font-bold transition-all"
+              style={{ background: 'linear-gradient(135deg, rgba(56,240,255,0.18), rgba(168,139,250,0.18))', border: '1px solid rgba(56,240,255,0.30)', color: '#38F0FF' }}
+            >
+              ✓ მისია დავასრულე
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Mission grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -407,17 +513,24 @@ export default function MissionsPage() {
               </div>
 
               {/* Action button */}
-              <button
-                onClick={handleStartMission}
-                disabled={!avail.available}
-                className="py-2.5 rounded-xl text-xs font-bold text-center transition-all"
-                style={avail.available
-                  ? { background: 'linear-gradient(135deg, rgba(56,240,255,0.15), rgba(168,139,250,0.15))', border: '1px solid rgba(56,240,255,0.25)', color: '#38F0FF' }
-                  : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: 'var(--text-dim)', cursor: 'not-allowed' }
-                }
-              >
-                {avail.available ? 'მისია დაიწყება' : 'მიუწვდომელია'}
-              </button>
+              {completedIds.has(mission.id) ? (
+                <div className="py-2.5 rounded-xl text-xs font-bold text-center flex items-center justify-center gap-1.5"
+                  style={{ background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.25)', color: '#34d399' }}>
+                  <CheckCircle size={13} /> დასრულებულია
+                </div>
+              ) : (
+                <button
+                  onClick={() => handleStartMission(mission)}
+                  disabled={!avail.available}
+                  className="py-2.5 rounded-xl text-xs font-bold text-center transition-all"
+                  style={avail.available
+                    ? { background: 'linear-gradient(135deg, rgba(56,240,255,0.15), rgba(168,139,250,0.15))', border: '1px solid rgba(56,240,255,0.25)', color: '#38F0FF' }
+                    : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: 'var(--text-dim)', cursor: 'not-allowed' }
+                  }
+                >
+                  {avail.available ? 'მისია დაიწყება' : 'მიუწვდომელია'}
+                </button>
+              )}
             </div>
           );
         })}

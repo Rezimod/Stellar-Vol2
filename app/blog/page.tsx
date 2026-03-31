@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Heart, MessageCircle, Share2, Image, Telescope, BookOpen, Newspaper, Send, X } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Image, Telescope, BookOpen, Newspaper, Send, X, User } from 'lucide-react';
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth/context';
 import { useLanguage } from '@/lib/i18n/context';
 
@@ -180,7 +181,7 @@ function PostCard({ post, ka, onLike }: { post: FeedPost; ka: boolean; onLike: (
   );
 }
 
-function CreatePostBox({ ka, userName, userInitials }: { ka: boolean; userName: string; userInitials: string }) {
+function CreatePostBox({ ka, userName, userInitials, onPost }: { ka: boolean; userName: string; userInitials: string; onPost: (post: FeedPost) => void }) {
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -284,6 +285,26 @@ function CreatePostBox({ ka, userName, userInitials }: { ka: boolean; userName: 
         </button>
         <button
           disabled={!content.trim()}
+          onClick={() => {
+            if (!content.trim()) return;
+            const COLORS = ['#38F0FF', '#FFD166', '#a78bfa', '#34d399', '#f97316'];
+            onPost({
+              id: Date.now().toString(),
+              user_name: userName,
+              user_initials: userInitials,
+              avatar_color: COLORS[Math.floor(Math.random() * COLORS.length)],
+              type,
+              content: content.trim(),
+              image_url: imageUrl.trim() || undefined,
+              likes: 0,
+              comments: 0,
+              created_at: new Date().toISOString(),
+            });
+            setContent('');
+            setImageUrl('');
+            setShowImageInput(false);
+            setOpen(false);
+          }}
           className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all"
           style={{
             background: content.trim() ? 'rgba(56,240,255,0.12)' : 'rgba(255,255,255,0.04)',
@@ -334,6 +355,10 @@ function FeedPage() {
     ));
   }
 
+  function handleNewPost(post: FeedPost) {
+    setPosts(prev => [post, ...prev]);
+  }
+
   const filtered = posts.filter(p => {
     if (filter !== 'all' && p.type !== filter) return false;
     if (q) return p.content.toLowerCase().includes(q) || p.user_name.toLowerCase().includes(q);
@@ -365,8 +390,20 @@ function FeedPage() {
       </div>
 
       {/* Create post */}
-      {user && (
-        <CreatePostBox ka={ka} userName={displayName} userInitials={userInitials} />
+      {user ? (
+        <CreatePostBox ka={ka} userName={displayName} userInitials={userInitials} onPost={handleNewPost} />
+      ) : (
+        <Link href="/login">
+          <div
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm transition-colors"
+            style={{ background: 'rgba(15,31,61,0.55)', border: '1px solid rgba(56,240,255,0.12)', color: 'var(--text-dim)' }}
+          >
+            <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(56,240,255,0.08)', border: '1.5px solid rgba(56,240,255,0.20)' }}>
+              <User size={16} style={{ color: 'rgba(56,240,255,0.5)' }} />
+            </div>
+            <span>{ka ? 'პოსტის დასაწერად შედი →' : 'Sign in to post →'}</span>
+          </div>
+        </Link>
       )}
 
       {/* Filter chips */}
