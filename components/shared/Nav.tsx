@@ -1,14 +1,14 @@
 'use client';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Moon, Orbit, Target, ScrollText, LogIn, User, House } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Moon, ScrollText, LogIn, User, House, Search, X } from 'lucide-react';
 import AstroLogo from './AstroLogo';
 import LanguageToggle from '@/components/LanguageToggle';
 import UserDropdown from '@/components/UserDropdown';
 import { useAuth } from '@/lib/auth/context';
 import { useLanguage } from '@/lib/i18n/context';
 
-// Custom Saturn icon (rings)
 function SaturnIcon({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -18,21 +18,6 @@ function SaturnIcon({ size = 18 }: { size?: number }) {
   );
 }
 
-// Custom telescope icon
-function TelescopeIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M10 10L4 6l1.5-3 6 3-1.5 4z" />
-      <path d="M10 10l4 2" />
-      <path d="M14 12l5-2" />
-      <path d="M12 17l1-5" />
-      <path d="M10 21h4" />
-      <path d="M12 17v4" />
-    </svg>
-  );
-}
-
-// Shooting star for missions
 function ShootingStarIcon({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -43,21 +28,36 @@ function ShootingStarIcon({ size = 18 }: { size?: number }) {
 
 export default function Nav() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (searchOpen) searchRef.current?.focus();
+  }, [searchOpen]);
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    router.push(`/blog?q=${encodeURIComponent(searchQuery.trim())}`);
+    setSearchOpen(false);
+    setSearchQuery('');
+  }
 
   const baseTabs = [
-    { href: '/',        label: t('nav.home'),    labelKa: 'მთავარი',   icon: (a: boolean) => <House    size={20} strokeWidth={a ? 2 : 1.5} /> },
-    { href: '/tonight', label: t('nav.tonight'), labelKa: 'ღამის ცა', icon: (a: boolean) => <Moon     size={20} strokeWidth={a ? 2 : 1.5} /> },
-    { href: '/planets', label: t('nav.planets'), labelKa: 'პლანეტები',icon: (a: boolean) => <SaturnIcon size={20} /> },
-    { href: '/blog',    label: t('nav.blog'),    labelKa: 'ბლოგი',    icon: (a: boolean) => <ScrollText size={20} strokeWidth={a ? 2 : 1.5} /> },
+    { href: '/',        labelKa: 'მთავარი',   labelEn: 'Home',    icon: (a: boolean) => <House      size={20} strokeWidth={a ? 2 : 1.5} /> },
+    { href: '/tonight', labelKa: 'ღამის ცა',  labelEn: 'Tonight', icon: (a: boolean) => <Moon       size={20} strokeWidth={a ? 2 : 1.5} /> },
+    { href: '/planets', labelKa: 'პლანეტები', labelEn: 'Planets', icon: (_a: boolean) => <SaturnIcon size={20} /> },
+    { href: '/blog',    labelKa: 'ფიდი',      labelEn: 'Feed',    icon: (a: boolean) => <ScrollText  size={20} strokeWidth={a ? 2 : 1.5} /> },
   ];
 
   const missionsTab = {
     href: '/missions',
-    label: t('nav.missions'),
-    labelKa: 'მისიები',
-    icon: (a: boolean) => <ShootingStarIcon size={20} />,
+    labelKa: 'მისიები', labelEn: 'Missions',
+    icon: (_a: boolean) => <ShootingStarIcon size={20} />,
   };
 
   const tabs = user
@@ -66,21 +66,21 @@ export default function Nav() {
 
   return (
     <>
-      {/* ── Top nav (always visible) ── */}
+      {/* ── Top nav ── */}
       <nav className="glass-nav sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="h-16 flex items-center justify-between gap-3">
+          <div className="h-14 flex items-center justify-between gap-2">
 
             {/* Logo */}
-            <Link href="/" className="flex-shrink-0 flex items-center gap-2.5">
-              <AstroLogo heightClass="h-7" />
-              <span className="hidden sm:inline text-xs tracking-widest font-mono" style={{ color: '#FFD166' }}>
+            <Link href="/" className="flex-shrink-0 flex items-center gap-2">
+              <AstroLogo heightClass="h-6" />
+              <span className="hidden sm:inline text-[11px] tracking-widest font-mono" style={{ color: '#FFD166' }}>
                 SKYWATCHER
               </span>
             </Link>
 
             {/* Desktop tabs */}
-            <div className="hidden md:flex items-center gap-0.5">
+            <div className="hidden md:flex items-center gap-0.5 flex-1 justify-center">
               {tabs.map(tab => {
                 const active = pathname === tab.href;
                 return (
@@ -94,32 +94,57 @@ export default function Nav() {
                     }`}
                   >
                     {tab.icon(active)}
-                    <span>{tab.label}</span>
+                    <span>{t(`nav.${tab.href === '/' ? 'home' : tab.href.slice(1)}`) || tab.labelEn}</span>
                   </Link>
                 );
               })}
             </div>
 
-            {/* Desktop right: language + auth */}
-            <div className="hidden md:flex items-center gap-3">
-              <LanguageToggle />
-              {user ? <UserDropdown /> : (
-                <div className="flex gap-2">
-                  <Link href="/login" className="px-4 py-1.5 rounded-lg text-xs font-medium transition-all"
-                    style={{ border: '1px solid rgba(56,240,255,0.25)', color: '#38F0FF' }}>
-                    {t('nav.login')}
-                  </Link>
-                  <Link href="/signup" className="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
-                    style={{ background: 'rgba(56,240,255,0.12)', border: '1px solid rgba(56,240,255,0.30)', color: '#38F0FF' }}>
-                    {t('nav.signup')}
-                  </Link>
-                </div>
+            {/* Right side: search + lang + auth */}
+            <div className="flex items-center gap-2">
+              {/* Search */}
+              {searchOpen ? (
+                <form onSubmit={handleSearch} className="flex items-center gap-1">
+                  <input
+                    ref={searchRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="ძებნა..."
+                    className="text-xs px-3 py-1.5 rounded-lg outline-none w-36 sm:w-48"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(56,240,255,0.20)', color: 'var(--text-primary)' }}
+                  />
+                  <button type="button" onClick={() => { setSearchOpen(false); setSearchQuery(''); }} className="p-1.5" style={{ color: 'var(--text-dim)' }}>
+                    <X size={15} />
+                  </button>
+                </form>
+              ) : (
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="p-1.5 rounded-lg transition-colors"
+                  style={{ color: 'var(--text-dim)' }}
+                >
+                  <Search size={16} />
+                </button>
               )}
-            </div>
 
-            {/* Mobile top bar: logo (left) + language toggle (right) */}
-            <div className="flex md:hidden items-center gap-2">
               <LanguageToggle />
+
+              {/* Desktop auth */}
+              <div className="hidden md:flex items-center gap-2">
+                {user ? <UserDropdown /> : (
+                  <>
+                    <Link href="/login" className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                      style={{ border: '1px solid rgba(56,240,255,0.20)', color: '#38F0FF' }}>
+                      {t('nav.login')}
+                    </Link>
+                    <Link href="/signup" className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                      style={{ background: 'rgba(56,240,255,0.12)', border: '1px solid rgba(56,240,255,0.25)', color: '#38F0FF' }}>
+                      {t('nav.signup')}
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
 
           </div>
@@ -130,58 +155,52 @@ export default function Nav() {
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-stretch"
         style={{
-          background: 'rgba(7,11,20,0.95)',
+          background: 'rgba(7,11,20,0.96)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           borderTop: '1px solid rgba(56,240,255,0.10)',
           paddingBottom: 'env(safe-area-inset-bottom)',
         }}
       >
-        {/* Nav items */}
         {tabs.map(tab => {
           const active = pathname === tab.href;
           return (
             <Link
               key={tab.href}
               href={tab.href}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 transition-all duration-200"
-              style={{ color: active ? '#38F0FF' : 'rgba(255,255,255,0.35)' }}
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 relative transition-all duration-200"
+              style={{ color: active ? '#38F0FF' : 'rgba(255,255,255,0.30)' }}
             >
-              <span style={{ filter: active ? 'drop-shadow(0 0 6px rgba(56,240,255,0.5))' : 'none' }}>
+              <span style={{ filter: active ? 'drop-shadow(0 0 5px rgba(56,240,255,0.5))' : 'none' }}>
                 {tab.icon(active)}
               </span>
-              <span className="text-[9px] font-medium tracking-wide">{tab.labelKa}</span>
+              <span className="text-[9px] font-medium">{tab.labelKa}</span>
               {active && (
-                <span
-                  className="absolute bottom-0 w-6 rounded-full"
-                  style={{ height: '2px', background: '#38F0FF', boxShadow: '0 0 8px rgba(56,240,255,0.6)' }}
-                />
+                <span className="absolute bottom-0 w-5 rounded-full" style={{ height: '2px', background: '#38F0FF' }} />
               )}
             </Link>
           );
         })}
-
-        {/* Auth tab */}
         {user ? (
           <Link
             href="/profile"
-            className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 transition-all duration-200 relative"
-            style={{ color: pathname === '/profile' ? '#38F0FF' : 'rgba(255,255,255,0.35)' }}
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 relative transition-all duration-200"
+            style={{ color: pathname === '/profile' ? '#38F0FF' : 'rgba(255,255,255,0.30)' }}
           >
             <User size={20} strokeWidth={pathname === '/profile' ? 2 : 1.5} />
-            <span className="text-[9px] font-medium tracking-wide">პროფილი</span>
+            <span className="text-[9px] font-medium">პროფილი</span>
             {pathname === '/profile' && (
-              <span className="absolute bottom-0 w-6 rounded-full" style={{ height: '2px', background: '#38F0FF', boxShadow: '0 0 8px rgba(56,240,255,0.6)' }} />
+              <span className="absolute bottom-0 w-5 rounded-full" style={{ height: '2px', background: '#38F0FF' }} />
             )}
           </Link>
         ) : (
           <Link
             href="/login"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 transition-all duration-200"
-            style={{ color: pathname === '/login' ? '#38F0FF' : 'rgba(255,255,255,0.35)' }}
+            style={{ color: pathname === '/login' ? '#38F0FF' : 'rgba(255,255,255,0.30)' }}
           >
             <LogIn size={20} strokeWidth={pathname === '/login' ? 2 : 1.5} />
-            <span className="text-[9px] font-medium tracking-wide">შესვლა</span>
+            <span className="text-[9px] font-medium">შესვლა</span>
           </Link>
         )}
       </nav>
