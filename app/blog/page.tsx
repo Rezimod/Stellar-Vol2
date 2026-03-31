@@ -1,11 +1,9 @@
 'use client';
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Heart, MessageCircle, Share2, Image, Telescope, BookOpen, Newspaper, Send, X, Clock, Tag } from 'lucide-react';
-import Link from 'next/link';
+import { Heart, MessageCircle, Share2, Image, Telescope, BookOpen, Newspaper, Send, X } from 'lucide-react';
 import { useAuth } from '@/lib/auth/context';
 import { useLanguage } from '@/lib/i18n/context';
-import { BLOG_POSTS } from '@/lib/constants';
 
 type PostType = 'observation' | 'photo' | 'discussion' | 'news';
 
@@ -144,7 +142,7 @@ function PostCard({ post, ka, onLike }: { post: FeedPost; ka: boolean; onLike: (
         <div className="px-4 pb-3">
           <img
             src={post.image_url}
-            alt={post.content.slice(0, 100)}
+            alt=""
             className="w-full rounded-xl object-cover"
             style={{ maxHeight: '320px', border: '1px solid rgba(255,255,255,0.06)' }}
           />
@@ -301,23 +299,12 @@ function CreatePostBox({ ka, userName, userInitials }: { ka: boolean; userName: 
   );
 }
 
-const FILTER_TYPES = ['all', 'observation', 'photo', 'discussion', 'news', 'articles'] as const;
+const FILTER_TYPES = ['all', 'observation', 'photo', 'discussion', 'news'] as const;
 type FilterType = typeof FILTER_TYPES[number];
-
-const CATEGORY_COLORS: Record<string, string> = {
-  'Guide': '#FFD166', 'Gear': '#38F0FF', 'Technology': '#a78bfa',
-  'Observation': '#34d399', 'Gift Ideas': '#f97316',
-};
 
 export default function BlogPage() {
   return (
-    <Suspense fallback={
-      <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col gap-4">
-        {[1, 2, 3].map(i => (
-          <div key={i} className="rounded-2xl h-32 animate-pulse" style={{ background: 'rgba(15,31,61,0.4)' }} />
-        ))}
-      </div>
-    }>
+    <Suspense fallback={<div className="max-w-2xl mx-auto px-4 py-8" />}>
       <FeedPage />
     </Suspense>
   );
@@ -359,7 +346,6 @@ function FeedPage() {
     photo:       { en: 'Photos',       ka: 'ფოტოები' },
     discussion:  { en: 'Discussions',  ka: 'განხილვები' },
     news:        { en: 'News',         ka: 'სიახლეები' },
-    articles:    { en: 'Articles',     ka: 'სტატიები' },
   };
 
   return (
@@ -387,7 +373,7 @@ function FeedPage() {
       <div className="flex gap-2 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
         {FILTER_TYPES.map(f => {
           const active = filter === f;
-          const cfg = (f !== 'all' && f !== 'articles') ? POST_TYPE_CONFIG[f as PostType] : null;
+          const cfg = f !== 'all' ? POST_TYPE_CONFIG[f as PostType] : null;
           return (
             <button
               key={f}
@@ -400,48 +386,14 @@ function FeedPage() {
               }}
             >
               {cfg && cfg.icon}
-              {f === 'articles' && <BookOpen size={11} />}
               {ka ? filterLabel[f].ka : filterLabel[f].en}
             </button>
           );
         })}
       </div>
 
-      {/* Posts or Articles */}
-      {filter === 'articles' ? (
-        <div className="flex flex-col gap-3">
-          {BLOG_POSTS.map(post => {
-            const color = CATEGORY_COLORS[post.category] ?? '#94a3b8';
-            return (
-              <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
-                <div
-                  className="rounded-2xl p-4 flex items-center gap-4 transition-colors"
-                  style={{ background: 'rgba(15,31,61,0.55)', border: '1px solid rgba(56,240,255,0.10)' }}
-                >
-                  <span className="text-2xl flex-shrink-0">{post.cover_emoji}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold group-hover:text-[#FFD166] transition-colors leading-snug truncate" style={{ fontFamily: 'Georgia, serif' }}>
-                      {post.title}
-                    </p>
-                    <p className="text-xs leading-snug mt-0.5 line-clamp-1" style={{ color: 'var(--text-dim)' }}>
-                      {post.excerpt}
-                    </p>
-                    <div className="flex items-center gap-3 mt-1.5 text-[10px]" style={{ color: 'var(--text-dim)' }}>
-                      <span className="flex items-center gap-1"><Clock size={9} /> {post.read_time} min</span>
-                      <span
-                        className="flex items-center gap-1 px-1.5 py-0.5 rounded-full"
-                        style={{ color, background: `${color}14`, border: `1px solid ${color}25` }}
-                      >
-                        <Tag size={8} /> {post.category}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      ) : filtered.length === 0 ? (
+      {/* Posts */}
+      {filtered.length === 0 ? (
         <div className="text-center py-16" style={{ color: 'var(--text-dim)' }}>
           <BookOpen size={32} className="mx-auto mb-3 opacity-30" />
           <p className="text-sm">{ka ? 'პოსტები ვერ მოიძებნა' : 'No posts found'}</p>

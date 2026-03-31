@@ -62,7 +62,6 @@ export default function SignupPage() {
       if (!signInError) {
         router.push('/missions');
       } else {
-        setLoading(false);
         setSuccess(ka
           ? 'ანგარიში შეიქმნა! შეამოწმე ელ.ფოსტა დასადასტურებლად, შემდეგ შედი.'
           : 'Account created! Check your email to confirm, then log in.');
@@ -99,11 +98,8 @@ export default function SignupPage() {
             </div>
           )}
           {success && (
-            <div className="rounded-xl p-3 text-sm leading-snug flex flex-col gap-2" style={{ background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.30)', color: '#34d399' }}>
-              <span>{success}</span>
-              <Link href="/login" className="underline font-semibold" style={{ color: '#34d399' }}>
-                {ka ? 'შესვლაზე გადასვლა →' : 'Go to login →'}
-              </Link>
+            <div className="rounded-xl p-3 text-sm leading-snug" style={{ background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.30)', color: '#34d399' }}>
+              {success}
             </div>
           )}
 

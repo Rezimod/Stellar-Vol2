@@ -10,7 +10,6 @@ import type { PlanetInfo, MoonInfo, SunTimes, DeepSkyObject } from '@/lib/astron
 import { PLANETS } from '@/lib/planets-data';
 import { Cloud, Wind, Droplets, Eye, Sunrise, Sunset, RefreshCw, Thermometer } from 'lucide-react';
 import BackButton from '@/components/BackButton';
-import { useLanguage } from '@/lib/i18n/context';
 
 const REFRESH_INTERVAL = 10 * 60 * 1000;
 
@@ -96,8 +95,6 @@ function MoonPhaseEmoji({ phaseName }: { phaseName: string }) {
 }
 
 function TwilightTimeline({ sun }: { sun: SunTimes }) {
-  const { locale } = useLanguage();
-  const ka = locale === 'ka';
   const events = [
     { label: 'მზის ჩასვლა',              time: sun.sunset,                color: '#FFD166' },
     { label: 'სამოქალაქო შებინდება',      time: sun.civilDuskEnd,          color: '#f97316' },
@@ -136,7 +133,7 @@ function TwilightTimeline({ sun }: { sun: SunTimes }) {
             className="absolute top-1/2 -translate-y-1/2 text-[8px] text-white/60 whitespace-nowrap"
             style={{ left: '50%', transform: 'translateX(-50%) translateY(-50%)' }}
           >
-            {ka ? 'საუკეთესო დრო' : 'BEST WINDOW'}
+            BEST WINDOW
           </span>
         </div>
       </div>

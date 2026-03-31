@@ -63,16 +63,11 @@ function renderContent(md: string) {
       );
     } else if (line.trim()) {
       flushList(`fl-${i}`);
-      const parts = line.split(/(\[[^\]]+\]\([^)]+\))/g);
+      // Handle inline links [text](url)
+      const linkified = line.replace(/\[([^\]]+)\]\(([^)]+)\)/g, `<a href="$2" class="text-[#38F0FF] hover:underline" target="_blank" rel="noopener noreferrer">$1</a>`);
       elements.push(
-        <p key={i} className="text-[var(--text-secondary)] text-sm leading-relaxed my-2">
-          {parts.map((part, j) => {
-            const m = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-            return m
-              ? <a key={j} href={m[2]} className="text-[#38F0FF] hover:underline" target="_blank" rel="noopener noreferrer">{m[1]}</a>
-              : part;
-          })}
-        </p>
+        <p key={i} className="text-[var(--text-secondary)] text-sm leading-relaxed my-2"
+           dangerouslySetInnerHTML={{ __html: linkified }} />
       );
     } else {
       flushList(`fl-${i}`);
@@ -98,7 +93,7 @@ export default async function BlogPostPage({ params }: Props) {
         className="inline-flex items-center gap-1.5 text-[var(--text-dim)] hover:text-[var(--text-secondary)] text-sm mb-6 transition-colors"
       >
         <ArrowLeft size={14} />
-        All posts / სტატიები
+        All posts
       </Link>
 
       {/* Header */}
