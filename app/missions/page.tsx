@@ -333,7 +333,7 @@ export default function MissionsPage() {
       )}
 
       {/* Filter tabs */}
-      <div className="flex gap-2 justify-center mb-8 flex-wrap">
+      <div className="flex gap-2 mb-8 overflow-x-auto pb-1 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
         {filterTabs.map(tab => (
           <button
             key={tab}
