@@ -34,10 +34,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProvider>
             <StarField />
             <Nav />
-            <main className="relative z-10 flex-1 pb-10">
+            <main className="relative z-10 flex-1 pb-24 md:pb-10">
               {children}
             </main>
-            <Footer />
+            <div className="hidden md:block">
+              <Footer />
+            </div>
           </AuthProvider>
         </LanguageProvider>
       </body>
