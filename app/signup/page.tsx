@@ -33,23 +33,19 @@ export default function SignupPage() {
     setError('');
     if (password !== confirm) { setError(t('auth.passwordMismatch')); return; }
     setLoading(true);
-
-    const { error: signUpError } = await signUp(email, password, name);
-    if (signUpError) {
+    try {
+      const { error: signUpError } = await signUp(email, password, name);
+      if (signUpError) { setError(signUpError); return; }
+      const { error: signInError } = await signIn(email, password);
+      if (!signInError) {
+        router.push('/missions');
+      } else {
+        setError('ანგარიში შეიქმნა! შეამოწმე ელ.ფოსტა დასადასტურებლად.');
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Something went wrong');
+    } finally {
       setLoading(false);
-      setError(signUpError);
-      return;
-    }
-
-    // Try to sign in immediately (works when email confirmation is disabled in Supabase)
-    const { error: signInError } = await signIn(email, password);
-    setLoading(false);
-
-    if (!signInError) {
-      router.push('/missions');
-    } else {
-      // Email confirmation is required — show message
-      setError('ანგარიში შეიქმნა! შეამოწმე ელ.ფოსტა დასადასტურებლად, შემდეგ შედი.');
     }
   }
 

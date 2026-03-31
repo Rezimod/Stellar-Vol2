@@ -8,10 +8,10 @@ export default function PlanetCards() {
 
   return (
     <section className="w-full">
-      <p className="text-center text-[var(--text-dim)] text-xs mb-2 tracking-widest uppercase">— Solar System —</p>
+      <p className="text-center text-[var(--text-dim)] text-xs mb-2 tracking-widest uppercase">— მზის სისტემა —</p>
       <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8" style={{ fontFamily: 'Georgia, serif' }}>
-        Planets{' '}
-        <span style={{ color: '#FFD166' }}>Tonight</span>
+        პლანეტები{' '}
+        <span style={{ color: '#FFD166' }}>ღამე</span>
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -19,10 +19,11 @@ export default function PlanetCards() {
           const live = liveData.find(p => p.name === planet.name);
           const accent = live?.isVisible ? '#34d399' : '#f87171';
           return (
-            <div
+            <Link
               key={planet.name}
-              className="glass-card overflow-hidden flex flex-col group"
-              style={{ borderColor: `${accent}22` }}
+              href={`/planets#${planet.name}`}
+              className="glass-card overflow-hidden flex flex-col group cursor-pointer hover:border-opacity-60 transition-all duration-200"
+              style={{ borderColor: `${accent}22`, textDecoration: 'none' }}
             >
               {/* Image */}
               <div className="w-full h-32 overflow-hidden relative">
@@ -44,43 +45,43 @@ export default function PlanetCards() {
                     className="text-[10px] px-2 py-0.5 rounded-full font-bold"
                     style={{ background: `${accent}18`, border: `1px solid ${accent}40`, color: accent }}
                   >
-                    {live?.isVisible ? 'Visible ✓' : 'Below Horizon ✗'}
+                    {live?.isVisible ? 'ხილული ✓' : 'ჰორიზ. ✗'}
                   </span>
                 </div>
 
                 {live && (
                   <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
                     <div>
-                      <span className="text-[var(--text-dim)]">Rise: </span>
+                      <span className="text-[var(--text-dim)]">ამოდის: </span>
                       <span style={{ color: '#FFD166' }}>{live.riseTime ?? '—'}</span>
                     </div>
                     <div>
-                      <span className="text-[var(--text-dim)]">Set: </span>
+                      <span className="text-[var(--text-dim)]">ჩადის: </span>
                       <span style={{ color: '#7A5FFF' }}>{live.setTime ?? '—'}</span>
                     </div>
                     <div>
-                      <span className="text-[var(--text-dim)]">Mag: </span>
+                      <span className="text-[var(--text-dim)]">სიკ.: </span>
                       <span className="text-[var(--text-primary)]">{live.magnitude}</span>
                     </div>
                     <div>
-                      <span className="text-[var(--text-dim)]">In: </span>
+                      <span className="text-[var(--text-dim)]">თ.ვ.: </span>
                       <span className="text-[var(--text-primary)] truncate">{live.constellation}</span>
                     </div>
                     <div className="col-span-2">
-                      <span className="text-[var(--text-dim)]">Size: </span>
+                      <span className="text-[var(--text-dim)]">ზომა: </span>
                       <span className="text-[var(--text-primary)]">{live.angularDiameter}</span>
                     </div>
                   </div>
                 )}
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
 
       <div className="flex justify-center mt-5">
         <Link href="/planets" className="btn-ghost px-5 py-2.5 rounded-xl text-xs font-medium">
-          Full Planet Encyclopedia →
+          ყველა პლანეტა →
         </Link>
       </div>
     </section>

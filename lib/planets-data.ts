@@ -9,6 +9,7 @@ export interface PlanetData {
   moons: number;
   temperatureRange: string;
   description: string;
+  description_ka: string;
   bodyId: string; // astronomy-engine body name
 }
 
@@ -24,6 +25,7 @@ export const PLANETS: PlanetData[] = [
     moons: 0,
     temperatureRange: '-180°C to 430°C',
     description: 'The smallest planet and closest to the Sun, Mercury has virtually no atmosphere and experiences the most extreme temperature swings in the solar system. Despite its proximity to the Sun, it is not the hottest planet.',
+    description_ka: 'ყველაზე პატარა პლანეტა და მზის ყველაზე ახლო მეზობელი. პრაქტიკულად ატმოსფერო არ გააჩნია და ტემპერატურა -180°C-დან 430°C-მდე იცვლება. ვენერაზე ცხელი არ არის.',
     bodyId: 'Mercury',
   },
   {
@@ -37,6 +39,7 @@ export const PLANETS: PlanetData[] = [
     moons: 0,
     temperatureRange: '~465°C (constant)',
     description: 'The brightest object in the night sky after the Moon, Venus is shrouded in thick clouds of sulfuric acid. Its runaway greenhouse effect makes it the hottest planet — hotter even than Mercury.',
+    description_ka: 'ყველაზე კაშკაშა ობიექტი ღამის ცაში მთვარის შემდეგ. გოგირდმჟავას ღრუბლებია გარემოცული. კლიმატის ავარია — ყველაზე ცხელი პლანეტა.',
     bodyId: 'Venus',
   },
   {
@@ -50,6 +53,7 @@ export const PLANETS: PlanetData[] = [
     moons: 2,
     temperatureRange: '-125°C to 20°C',
     description: 'The Red Planet gets its color from iron oxide (rust) on its surface. Mars hosts Olympus Mons, the tallest volcano in the solar system, and Valles Marineris, a canyon system that dwarfs Earth\'s Grand Canyon.',
+    description_ka: 'წითელი პლანეტა რკინის ოქსიდის (ჟანგის) გამო. ოლიმპ მონსი — მზის სისტემის ყველაზე მაღალი ვულკანი — და ვალეს მარინერის კანიონია ამ პლანეტაზე.',
     bodyId: 'Mars',
   },
   {
@@ -63,6 +67,7 @@ export const PLANETS: PlanetData[] = [
     moons: 95,
     temperatureRange: '-145°C (cloud tops)',
     description: 'The king of planets — Jupiter is so massive that all other planets in the solar system could fit inside it twice over. Its iconic Great Red Spot is a storm that has raged for at least 350 years.',
+    description_ka: 'ყველაზე დიდი პლანეტა — დანარჩენ ყველა პლანეტაზე 2.5-ჯერ მეტი მასა. დიდი წითელი ლაქა — ქარიშხალი 350 წელია ბობოქრობს.',
     bodyId: 'Jupiter',
   },
   {
@@ -76,6 +81,7 @@ export const PLANETS: PlanetData[] = [
     moons: 146,
     temperatureRange: '-178°C (cloud tops)',
     description: 'Saturn\'s magnificent ring system — made of ice and rock — stretches 282,000 km across but is only about 10 meters thick. It is the least dense planet; it would float on water.',
+    description_ka: 'ყინულისა და კლდის ნაწილაკებისგან შემდგარი რგოლები 270,000 კმ-ზე ვრცელდება. სიმჭიდროვე წყლის 30%-ია — წყალზე დაცურავდა.',
     bodyId: 'Saturn',
   },
   {
@@ -89,6 +95,7 @@ export const PLANETS: PlanetData[] = [
     moons: 28,
     temperatureRange: '-224°C (coldest planet)',
     description: 'Uranus rotates on its side with an axial tilt of 98°, likely caused by a massive ancient collision. It is the coldest planetary atmosphere in the solar system, despite not being the farthest from the Sun.',
+    description_ka: 'ყინულის გიგანტი — 98°-ით დახრილი ღერძით. ამის გამო ეს პლანეტა პრაქტიკულად „გვერდზე" ტრიალებს მზის გარშემო.',
     bodyId: 'Uranus',
   },
   {
@@ -102,6 +109,7 @@ export const PLANETS: PlanetData[] = [
     moons: 16,
     temperatureRange: '-218°C (average)',
     description: 'The windiest planet in the solar system, Neptune\'s storms can reach 2,100 km/h. Its largest moon Triton orbits in the opposite direction to Neptune\'s rotation — a captured Kuiper Belt object.',
+    description_ka: 'ყველაზე ძლიერი ქარი მზის სისტემაში — 2100 კმ/სთ. ბნელი ლაქა — ქარიშხალი — ატლანტიკის ოკეანის ზომის. მზიდან 4.5 მლრდ კმ.',
     bodyId: 'Neptune',
   },
   {
@@ -115,6 +123,7 @@ export const PLANETS: PlanetData[] = [
     moons: 5,
     temperatureRange: '-230°C to -218°C',
     description: 'Reclassified as a dwarf planet in 2006, Pluto still captures imaginations. NASA\'s New Horizons mission revealed heart-shaped nitrogen ice plains, towering water-ice mountains, and a surprisingly complex geology.',
+    description_ka: 'კარლიკული პლანეტა კეიპერის სარტყელში. 2015 წელს New Horizons-მა მისი გული — ტომბოს რეგიო — გამოავლინა. ყინულიანი მთებია 3500 მ სიმაღლის.',
     bodyId: 'Pluto',
   },
 ];

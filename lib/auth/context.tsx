@@ -11,7 +11,6 @@ interface AuthContextValue {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string, name: string) => Promise<{ error: string | null }>;
-  signInWithGoogle: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -22,7 +21,6 @@ const AuthContext = createContext<AuthContextValue>({
   loading: true,
   signIn: async () => ({ error: null }),
   signUp: async () => ({ error: null }),
-  signInWithGoogle: async () => ({ error: null }),
   signOut: async () => {},
   refreshProfile: async () => {},
 });
@@ -74,37 +72,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error?.message ?? null };
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      return { error: error?.message ?? null };
+    } catch (e: unknown) {
+      return { error: e instanceof Error ? e.message : 'Connection error. Check your internet connection.' };
+    }
   };
 
   const signUp = async (email: string, password: string, name: string) => {
-    const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: name } },
-    });
-    return { error: error?.message ?? null };
-  };
-
-  const signInWithGoogle = async () => {
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-    return { error: error?.message ?? null };
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: name } },
+      });
+      return { error: error?.message ?? null };
+    } catch (e: unknown) {
+      return { error: e instanceof Error ? e.message : 'Connection error. Check your internet connection.' };
+    }
   };
 
   const signOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch {}
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signIn, signUp, signInWithGoogle, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, signIn, signUp, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

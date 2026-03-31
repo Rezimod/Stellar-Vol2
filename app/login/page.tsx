@@ -29,10 +29,15 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const { error } = await signIn(email, password);
-    setLoading(false);
-    if (error) { setError(error); return; }
-    router.push('/missions');
+    try {
+      const { error } = await signIn(email, password);
+      if (error) { setError(error); return; }
+      router.push('/missions');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
